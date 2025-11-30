@@ -1,0 +1,22 @@
+{
+  "name": "ai-commit",
+  "version": "1.0.0",
+  "description": "用ai產生commit",
+  "repository": {
+    "type": "git",
+    "url": "y"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "groq-sdk": "^0.37.0",
+    "openai": "^6.9.1",
+    "simple-git": "^3.30.0"
+  }
+}
