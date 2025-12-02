@@ -1,22 +1,32 @@
 {
   "name": "ai-commit",
+  "type": "module",
   "version": "1.0.0",
-  "description": "用ai產生commit",
+  "description": "用 AI 生成 Git commit message",
+  "author": "",
+  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "y"
   },
-  "license": "ISC",
-  "author": "",
-  "type": "module",
   "main": "index.js",
+  "bin": {
+    "ai": "./src/index.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix"
   },
   "dependencies": {
-    "dotenv": "^17.2.3",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "conf": "^15.0.2",
     "groq-sdk": "^0.37.0",
     "openai": "^6.9.1",
     "simple-git": "^3.30.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^6.2.0",
+    "eslint": "^9.39.1"
   }
 }
