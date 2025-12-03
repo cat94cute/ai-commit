@@ -1,20 +1,22 @@
 import OpenAI from 'openai'
 import { getApiKey } from '../conf.js'
 
-export function createDeepSeekClient() {
+export function createGeminiClient() {
   const apiKey = getApiKey()
+
   const client = new OpenAI({
+    baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai',
     apiKey,
-    baseURL: 'https://api.deepseek.com/v1',
   })
 
   return {
-    name: 'deepseek',
-    model: 'deepseek-chat',
-    async chat(prompt) {
+    name: 'gemini',
+    model: 'gemini-2.0-flash',
+
+    async chat(messages) {
       const response = await client.chat.completions.create({
-        model: 'deepseek-chat',
-        messages: prompt,
+        model: this.model,
+        messages,
         temperature: 0.3,
       })
 

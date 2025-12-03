@@ -3,8 +3,11 @@ import { select } from '@inquirer/prompts'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import simpleGit from 'simple-git'
-import { getProvider, setApiKey } from './conf.js'
+import { getProvider, setApiKey, setProvider } from './conf.js'
+import { API_PROVIDERS } from './const/index.js'
 import { commitMessagePromptMultiple, commitMessagePromptSingle } from './prompt.js'
+import { createDeepSeekClient } from './providers/deepseek.js'
+import { createGeminiClient } from './providers/gemini.js'
 import { createGroqClient } from './providers/groq.js'
 
 const program = new Command()
@@ -24,16 +27,15 @@ program
   .command('config-provider')
   .description('設定API提供者，目前僅支援 Groq')
   .action(async () => {
+    const selects = API_PROVIDERS.map(provider => ({
+      name: provider.name,
+      value: provider.value,
+    }))
     const answer = await select({
       message: '請選擇 AI Provider：',
-      choices: [{
-        name: 'Groq(default)',
-        value: 'groq',
-      }, {
-        name: 'OpenAI',
-        value: 'openai',
-      }],
+      choices: selects,
     })
+    setProvider(answer)
     console.log(answer)
   })
 
@@ -64,8 +66,14 @@ async function main() {
     case 'groq':
       client = await createGroqClient()
       break
+    case 'gemini':
+      client = await createGeminiClient()
+      break
     case 'openai':
       throw new Error('OpenAI 尚未實作')
+    case 'deepseek':
+      client = await createDeepSeekClient()
+      break
     default:
       throw new Error('不支援的提供者')
   }
