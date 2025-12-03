@@ -2,10 +2,10 @@
 import { select } from '@inquirer/prompts'
 import chalk from 'chalk'
 import { Command } from 'commander'
-import Groq from 'groq-sdk'
 import simpleGit from 'simple-git'
-import { getApiKey, setApiKey } from './conf.js'
+import { getProvider, setApiKey } from './conf.js'
 import { commitMessagePromptMultiple, commitMessagePromptSingle } from './prompt.js'
+import { createGroqClient } from './providers/groq.js'
 
 const program = new Command()
 const git = simpleGit()
@@ -58,63 +58,60 @@ async function main() {
     return
   }
 
-  const client = new Groq({ apiKey: getApiKey() })
+  const provider = getProvider()
+  let client
+  switch (provider) {
+    case 'groq':
+      client = await createGroqClient()
+      break
+    case 'openai':
+      throw new Error('OpenAI 尚未實作')
+    default:
+      throw new Error('不支援的提供者')
+  }
 
   const chunks = splitToChunks(diff)
-  const messages = []
   let finalMessage = ''
   if (chunks.length > 1) {
     console.log(chalk.cyan(`檔案變更較大，將內容分成 ${chunks.length} 段傳送給模型。`))
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i]
-      messages.push({
-        role: 'system',
-        content: commitMessagePromptMultiple(chunks.length, i + 1),
-      })
-      messages.push({ role: 'user', content: chunk })
-      const res = await client.chat.completions.create({
-        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-        messages: [
-          {
-            role: 'system',
-            content: commitMessagePromptMultiple(chunks.length, i + 1),
-          },
-          {
-            role: 'user',
-            content: chunk,
-          },
-        ],
-      })
+      const messages = [
+        {
+          role: 'system',
+          content: commitMessagePromptMultiple(chunks.length, i + 1),
+        },
+        {
+          role: 'user',
+          content: chunk,
+        },
+      ]
+      const result = await client.chat(messages)
 
       if (i < chunks.length - 1) {
-        console.log(chalk.cyan(`模型回覆：${res.choices[0].message.content}`))
-        // 移除 model 回覆，避免下一段被誤用
-        messages.push({ role: 'assistant', content: res.choices[0].message.content })
+        console.log(chalk.cyan(`模型回覆：${result}`))
       }
       else {
-        // 最後一段，輸出 commit
-        console.log(chalk.yellow(res.choices[0].message.content))
+        console.log(chalk.yellow(result))
       }
     }
   }
   else {
-    const res = await client.chat.completions.create({
-      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-      messages: [
-        { role: 'system', content: commitMessagePromptSingle },
-        {
-          role: 'user',
-          content: diff,
-        },
-      ],
-    })
-    console.log(chalk.yellow(res.choices[0].message.content))
-    finalMessage = res.choices[0].message.content.trim()
+    const messages = [
+      { role: 'system', content: commitMessagePromptSingle },
+      {
+        role: 'user',
+        content: diff,
+      },
+    ]
+    const result = await client.chat(messages)
+    console.log(chalk.yellow(result))
+    finalMessage = result
   }
 
-  const ok = await confirmCommit(finalMessage)
-  if (ok) {
+  const answer = await confirmCommit(finalMessage)
+  if (answer) {
     await git.commit(finalMessage)
     console.log(chalk.green('Commit 已建立 🎉'))
   }

@@ -18,7 +18,18 @@ export function setProvider(provider) {
 }
 
 export function getApiKey() {
-  const key = config.get('API_SECRET_KEY')
+  const provider = getProvider()
+  let key = ''
+  switch (provider) {
+    case 'groq':
+      key = config.get('GROQ_SECRET_KEY')
+      break
+    case 'openai':
+      key = config.get('OPENAI_SECRET_KEY')
+      break
+    default:
+      break
+  }
   if (!key)
     throw new Error('你需要先設定key')
   return key
@@ -27,5 +38,15 @@ export function getApiKey() {
 export function setApiKey(key) {
   if (!key)
     throw new Error('你需要輸入api key')
-  config.set('API_SECRET_KEY', key)
+  const provider = getProvider()
+  switch (provider) {
+    case 'groq':
+      config.set('GROQ_SECRET_KEY', key)
+      break
+    case 'openai':
+      config.set('OPENAI_SECRET_KEY', key)
+      break
+    default:
+      break
+  }
 }
