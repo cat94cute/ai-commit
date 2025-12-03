@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { select } from '@inquirer/prompts'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import Groq from 'groq-sdk'
@@ -17,6 +18,23 @@ program
   .action(async (apiKey) => {
     await setApiKey(apiKey)
     console.log(chalk.green(`API key 已儲存`))
+  })
+
+program
+  .command('config-provider')
+  .description('設定API提供者，目前僅支援 Groq')
+  .action(async () => {
+    const answer = await select({
+      message: '請選擇 AI Provider：',
+      choices: [{
+        name: 'Groq(default)',
+        value: 'groq',
+      }, {
+        name: 'OpenAI',
+        value: 'openai',
+      }],
+    })
+    console.log(answer)
   })
 
 program
@@ -44,6 +62,7 @@ async function main() {
 
   const chunks = splitToChunks(diff)
   const messages = []
+  let finalMessage = ''
   if (chunks.length > 1) {
     console.log(chalk.cyan(`檔案變更較大，將內容分成 ${chunks.length} 段傳送給模型。`))
 
@@ -90,14 +109,35 @@ async function main() {
         },
       ],
     })
-
     console.log(chalk.yellow(res.choices[0].message.content))
+    finalMessage = res.choices[0].message.content.trim()
+  }
+
+  const ok = await confirmCommit(finalMessage)
+  if (ok) {
+    await git.commit(finalMessage)
+    console.log(chalk.green('Commit 已建立 🎉'))
+  }
+  else {
+    console.log(chalk.yellow('已取消 commit'))
   }
 }
 
 async function getDiff() {
   const diff = await git.diff(['--cached'])
   return diff
+}
+
+async function confirmCommit() {
+  const answer = await select({
+    type: 'list',
+    message: `你要使用這個 commit message 嗎？`,
+    choices: [
+      { name: '是，建立 commit', value: true },
+      { name: '否，取消', value: false },
+    ],
+  })
+  return answer
 }
 
 program.parse()
