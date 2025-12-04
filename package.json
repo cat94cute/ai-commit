@@ -1,7 +1,7 @@
 {
   "name": "@cat94cute/ai-commit",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "用 AI 生成 Git commit message",
   "author": "Whiskas",
@@ -11,6 +11,13 @@
     "type": "git",
     "url": "https://github.com/cat94cute/ai-commit"
   },
+  "keywords": [
+    "ai",
+    "commit",
+    "git",
+    "commit-message",
+    "generative-ai"
+  ],
   "main": "index.js",
   "bin": {
     "ai": "./src/index.js"
