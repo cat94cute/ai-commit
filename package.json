@@ -1,7 +1,8 @@
 {
-  "name": "ai-commit",
+  "name": "@cat94cute/ai-commit",
   "type": "module",
   "version": "1.0.0",
+  "private": false,
   "description": "用 AI 生成 Git commit message",
   "author": "Whiskas",
   "license": "MIT",
