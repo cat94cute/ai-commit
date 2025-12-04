@@ -3,11 +3,12 @@
   "type": "module",
   "version": "1.0.0",
   "description": "用 AI 生成 Git commit message",
-  "author": "",
-  "license": "ISC",
+  "author": "Whiskas",
+  "license": "MIT",
+  "homepage": "https://github.com/cat94cute/ai-commit#readme",
   "repository": {
     "type": "git",
-    "url": "y"
+    "url": "https://github.com/cat94cute/ai-commit"
   },
   "main": "index.js",
   "bin": {
