@@ -27,16 +27,34 @@ program
   .command('config-provider')
   .description('設定API提供者，目前僅支援 Groq')
   .action(async () => {
-    const selects = API_PROVIDERS.map(provider => ({
-      name: provider.name,
-      value: provider.value,
-    }))
-    const answer = await select({
-      message: '請選擇 AI Provider：',
-      choices: selects,
-    })
-    setProvider(answer)
-    console.log(answer)
+    try {
+      const selects = API_PROVIDERS.map((provider) => {
+        if (provider.value === getProvider()) {
+          return {
+            name: `${provider.name} (目前使用中)`,
+            value: provider.value,
+          }
+        }
+        else {
+          return {
+            name: provider.name,
+            value: provider.value,
+          }
+        }
+      })
+      const answer = await select({
+        message: '請選擇 AI Provider：',
+        choices: selects,
+      })
+      setProvider(answer)
+    }
+    catch (error) {
+      if (error instanceof Error && error.name === 'ExitPromptError') {
+        console.log(chalk.yellow('\n取消操作'))
+        return
+      }
+      console.error(error)
+    }
   })
 
 program
