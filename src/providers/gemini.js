@@ -11,7 +11,7 @@ export function createGeminiClient() {
 
   return {
     name: 'gemini',
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash-lite',
 
     async chat(messages) {
       const response = await client.chat.completions.create({

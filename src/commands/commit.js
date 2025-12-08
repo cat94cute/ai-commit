@@ -28,8 +28,11 @@ async function handleCommit() {
 
   const chunks = splitToChunks(diff)
   let finalMessage = ''
+  console.log(chunks.length)
 
   if (chunks.length > 1) {
+    console.log(123)
+
     console.log(chalk.cyan(`將 diff 分成 ${chunks.length} 段送出`))
 
     for (let i = 0; i < chunks.length; i++) {
